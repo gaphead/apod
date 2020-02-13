@@ -6,12 +6,14 @@ require 'nokogiri'
 
 
 class Page
+  attr_reader :title, :body_text, :image, :url
+
   def initialize(url)
     @url = url
-    @html_file = open(url).read
+    @html_file = open(@url).read
     @html_doc = Nokogiri::HTML(@html_file)
     @title = @html_doc.search('title').text.strip
-    @body_text = @html_doc.css('p a').each { |a| puts "#{a.text} - #{a.attribute('href').value}" }
+    @body_text = @html_doc.css('p').text.strip.gsub(/\n/, ' ').gsub(/\"/, "'").gsub(/\s{2,}/, ' ')
     @root_url = "https://apod.nasa.gov"
     @image = "#{@root_url}/#{@html_doc.css('p a')[1].attribute('href').value}"
   end
